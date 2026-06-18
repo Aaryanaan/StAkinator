@@ -53,8 +53,8 @@ export default function ResultView({
 
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Confidence</span>
-            <span>{result.top.percent}%</span>
+            <span>Match strength</span>
+            <span className="text-slate-200">{result.top.percent}%</span>
           </div>
           <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-edge">
             <div
@@ -62,6 +62,19 @@ export default function ResultView({
               style={{ width: `${Math.max(4, result.top.percent)}%` }}
             />
           </div>
+          <p className="mt-2 text-xs text-slate-500">
+            How strongly your choices point here versus the other types — not a percent chance.
+            {result.ranked[1] && result.ranked[1].percent >= 15 ? (
+              <>
+                {" "}
+                Its nearest cousin is{" "}
+                <span className="text-slate-300">{result.ranked[1].name}</span> ({result.ranked[1].percent}%),
+                because those architectures share a lot of infrastructure.
+              </>
+            ) : (
+              <> Your choices are quite distinctive to this type.</>
+            )}
+          </p>
         </div>
 
         <p className="mt-5 whitespace-pre-line text-slate-300">{narrative}</p>

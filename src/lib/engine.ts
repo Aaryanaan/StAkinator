@@ -60,14 +60,27 @@ function scoreArchetypes(selections: Record<string, string>): Record<ArchetypeId
   return scores;
 }
 
+// Softmax temperature. Lower = sharper (winner dominates); higher = flatter.
+// Tuned so a textbook architecture reads as a strong match while genuinely
+// look-alike families (marketplace/streaming/social) still show real overlap.
+const CONFIDENCE_TEMPERATURE = 3.8;
+
 function rank(scores: Record<ArchetypeId, number>): RankedArchetype[] {
-  // Confidence = a positive score's share of all positive score mass.
-  const positiveTotal = ALL_ARCHETYPE_IDS.reduce((sum, id) => sum + Math.max(0, scores[id]), 0);
-  const ranked = ALL_ARCHETYPE_IDS.map((id) => {
-    const score = scores[id];
-    const percent = positiveTotal > 0 ? Math.round((Math.max(0, score) / positiveTotal) * 100) : 0;
-    return { id, name: ARCHETYPE_INDEX[id].name, score, percent };
-  });
+  // Confidence = softmax over scores: each archetype's share reflects how far
+  // ahead it is of the alternatives, not its slice of total point mass. This
+  // keeps the number intuitive even when many archetypes share infrastructure.
+  const maxScore = Math.max(...ALL_ARCHETYPE_IDS.map((id) => scores[id]));
+  const exps = ALL_ARCHETYPE_IDS.map((id) =>
+    Math.exp((scores[id] - maxScore) / CONFIDENCE_TEMPERATURE),
+  );
+  const expTotal = exps.reduce((sum, e) => sum + e, 0); // always > 0 (max term = 1)
+
+  const ranked = ALL_ARCHETYPE_IDS.map((id, i) => ({
+    id,
+    name: ARCHETYPE_INDEX[id].name,
+    score: scores[id],
+    percent: Math.round((exps[i] / expTotal) * 100),
+  }));
   // Stable, deterministic ordering: score desc, then fixed archetype order.
   ranked.sort((a, b) => b.score - a.score || ALL_ARCHETYPE_IDS.indexOf(a.id) - ALL_ARCHETYPE_IDS.indexOf(b.id));
   return ranked;
