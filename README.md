@@ -2,6 +2,8 @@
 
 A mashup between that old prediction game called Akinator and modern tech stacks! Please feel free to fork and build on this as much as possible! I built Stakinator on a whim within about 30 minutes, but I definitely see some potential in it as a helpful learning tool for those beginning to learn about system design.
 
+TL:DR: Super easy to use! Just clone, go to the directory, run "npm install" and "npm run dev" to run on "http://localhost:3000", and get started! The Anthropic API key is optional, and can be added by following the instructions in .env.example for a very slightly enhanced experience.
+
 Stakinator is an interactive system-design game. You make a series of full-stack architecture choices
 (database type, consistency model, server state, API style, caching, deployment, …) and the
 app figures out **what kind of real-world application you've just described** — then teaches
