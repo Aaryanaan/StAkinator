@@ -1,0 +1,170 @@
+import type { Archetype } from "@/lib/types";
+
+// `ideal` maps questionId -> the recommended optionId for that archetype.
+// Used to compute "what to change to transform into this type".
+export const ARCHETYPES: Archetype[] = [
+  {
+    id: "crud",
+    name: "Simple CRUD / Admin App",
+    description:
+      "Create-read-update-delete over forms and tables: internal tools, admin panels, and workflow apps where correctness and clarity beat scale.",
+    examples: ["A company admin dashboard", "Linear-style issue tracker (early)", "A booking/back-office tool"],
+    ideal: {
+      client: "spa",
+      api: "rest",
+      backend: "monolith",
+      state: "stateless",
+      db: "relational",
+      consistency: "strong_acid",
+      async: "async_none",
+      cache: "db_cache",
+      files: "files_none",
+      deploy: "single_server",
+      observability: "basic_logs",
+    },
+  },
+  {
+    id: "ecom",
+    name: "E-commerce / Order System",
+    description:
+      "Carts, inventory, payments, and orders. Transactional correctness is non-negotiable, with async jobs for receipts and fulfillment.",
+    examples: ["Shopify-style commerce", "An online store / marketplace checkout", "A ticketing platform"],
+    ideal: {
+      client: "spa",
+      api: "rest",
+      backend: "modular_monolith",
+      state: "stateless",
+      db: "relational",
+      consistency: "strong_acid",
+      async: "job_queue",
+      cache: "redis_cache",
+      files: "object_storage",
+      deploy: "lb_multi",
+      observability: "audit_logs",
+    },
+  },
+  {
+    id: "chat",
+    name: "Real-Time Chat / Collaboration",
+    description:
+      "Low-latency messaging, presence, and shared live state. WebSocket connections, a pub/sub backplane, and durable message history.",
+    examples: ["Slack", "Discord", "Google Docs / Figma-style collaboration"],
+    ideal: {
+      client: "mobile",
+      api: "websockets",
+      backend: "microservices",
+      state: "stateful_conn",
+      db: "key_value",
+      consistency: "read_your_writes",
+      async: "pub_sub",
+      cache: "redis_cache",
+      files: "object_storage",
+      deploy: "kubernetes",
+      observability: "logs_metrics_tracing",
+    },
+  },
+  {
+    id: "social",
+    name: "Social Feed / Content App",
+    description:
+      "Profiles, posts, follows, and feeds with heavy reads and async fan-out. Eventual consistency and media at scale.",
+    examples: ["Instagram-style feed", "Twitter/X timeline", "Reddit-style content site"],
+    ideal: {
+      client: "mobile",
+      api: "graphql",
+      backend: "microservices",
+      state: "stateless",
+      db: "wide_column",
+      consistency: "eventual",
+      async: "event_streaming",
+      cache: "cdn",
+      files: "cdn_media",
+      deploy: "multi_region",
+      observability: "logs_metrics_tracing",
+    },
+  },
+  {
+    id: "market",
+    name: "Marketplace / Ride-Sharing",
+    description:
+      "Two-sided matching in real time: buyers/sellers or riders/drivers, geospatial data, event-driven workflows, payouts, and resilience.",
+    examples: ["Uber / Lyft", "DoorDash", "Airbnb"],
+    ideal: {
+      client: "mobile",
+      api: "grpc",
+      backend: "microservices",
+      state: "stateless",
+      db: "relational",
+      consistency: "tunable",
+      async: "event_streaming",
+      cache: "redis_cache",
+      files: "object_storage",
+      deploy: "kubernetes",
+      observability: "logs_metrics_tracing",
+    },
+  },
+  {
+    id: "analytics",
+    name: "Analytics / Dashboard App",
+    description:
+      "Ingest lots of events, aggregate them, and serve dashboards and reports. OLAP/search storage with batch or streaming pipelines.",
+    examples: ["Amplitude / Mixpanel", "A BI dashboard product", "An observability platform"],
+    ideal: {
+      client: "spa",
+      api: "sse",
+      backend: "event_driven",
+      state: "stateless",
+      db: "search_ts",
+      consistency: "eventual",
+      async: "event_streaming",
+      cache: "db_cache",
+      files: "files_none",
+      deploy: "serverless_deploy",
+      observability: "alerts_slo",
+    },
+  },
+  {
+    id: "streaming",
+    name: "Streaming / Media / Recommendation",
+    description:
+      "Deliver media globally with low latency and personalize it. CDN/edge delivery, key-value/wide-column stores, and event pipelines.",
+    examples: ["Netflix", "Spotify", "YouTube"],
+    ideal: {
+      client: "multi_client",
+      api: "grpc",
+      backend: "microservices",
+      state: "stateless",
+      db: "wide_column",
+      consistency: "eventual",
+      async: "event_streaming",
+      cache: "cdn",
+      files: "cdn_media",
+      deploy: "multi_region",
+      observability: "logs_metrics_tracing",
+    },
+  },
+  {
+    id: "iot",
+    name: "IoT / Time-Series Monitoring",
+    description:
+      "Ingest high-volume device telemetry, store it as time-series, and alert on it. Event ingestion, downsampling, and thresholds.",
+    examples: ["A fleet/sensor monitoring platform", "Smart-home telemetry", "Industrial metrics"],
+    ideal: {
+      client: "multi_client",
+      api: "message_api",
+      backend: "event_driven",
+      state: "stateless",
+      db: "search_ts",
+      consistency: "eventual",
+      async: "event_streaming",
+      cache: "edge_cache",
+      files: "files_none",
+      deploy: "serverless_deploy",
+      observability: "alerts_slo",
+    },
+  },
+];
+
+export const ARCHETYPE_INDEX: Record<string, Archetype> = Object.fromEntries(
+  ARCHETYPES.map((a) => [a.id, a]),
+);

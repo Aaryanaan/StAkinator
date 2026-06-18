@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: theme("colors.ink");
+  color: #e7ecf3;
+}
+
+body {
+  background-image:
+    radial-gradient(60rem 60rem at 110% -10%, rgba(110, 168, 254, 0.08), transparent),
+    radial-gradient(50rem 50rem at -10% 110%, rgba(126, 240, 194, 0.06), transparent);
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(110, 168, 254, 0.35);
+}
+
+/* Thin custom scrollbar for the side summary */
+.scroll-slim::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: theme("colors.edge");
+  border-radius: 8px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.35s ease both;
+}
