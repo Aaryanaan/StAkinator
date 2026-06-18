@@ -1,5 +1,7 @@
 # Architecture Akinator
 
+A mashup between that old prediction game called Akinator and modern tech stacks!
+
 An interactive system-design game. You make a series of full-stack architecture choices
 (database type, consistency model, server state, API style, caching, deployment, …) and the
 app figures out **what kind of real-world application you've just described** — then teaches
