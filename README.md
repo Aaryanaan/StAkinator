@@ -74,7 +74,7 @@ results page
 | File | What it holds |
 |---|---|
 | `questions.ts` | 11 questions, each option with an `explanation`, `caveat`, per-archetype `scores`, and capability `tags` |
-| `archetypes.ts` | 8 archetypes, each with real examples and an `ideal` choice per question (used for transformations) |
+| `archetypes.ts` | 9 archetypes, each with real examples and an `ideal` choice per question (used for transformations) |
 | `conflicts.ts` | Rules that fire on selected option-ids / tags to flag incoherent combinations |
 | `scenarios.ts` | 5 base debugging scenarios per archetype + conditional ones triggered by your actual choices |
 

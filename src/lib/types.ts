@@ -8,7 +8,8 @@ export type ArchetypeId =
   | "market"
   | "analytics"
   | "streaming"
-  | "iot";
+  | "iot"
+  | "ai_search";
 
 export type Severity = "critical" | "high" | "medium" | "low";
 

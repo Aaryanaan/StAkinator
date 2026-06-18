@@ -22,7 +22,7 @@ export const QUESTIONS: Question[] = [
         explanation:
           "A JS app talks to a JSON API — good for interactive dashboards and app-like UIs.",
         caveat: "Initial bundle size and client-side state management add complexity.",
-        scores: { crud: 1, ecom: 1, analytics: 2, social: 1 },
+        scores: { crud: 1, ecom: 1, analytics: 2, social: 1, ai_search: 1 },
       },
       {
         id: "mobile",
@@ -92,7 +92,7 @@ export const QUESTIONS: Question[] = [
         label: "Server-Sent Events",
         explanation: "One-way server→client stream over HTTP — good for live dashboards and feeds.",
         caveat: "Only server-to-client; client actions still need a separate request path.",
-        scores: { chat: 2, analytics: 3, iot: 3, streaming: 2 },
+        scores: { chat: 2, analytics: 3, iot: 3, streaming: 2, ai_search: 3 },
         tags: ["realtime_push"],
       },
       {
@@ -139,7 +139,7 @@ export const QUESTIONS: Question[] = [
         label: "Serverless functions",
         explanation: "Per-request functions that scale to zero — cheap for spiky or event workloads.",
         caveat: "Cold starts and ephemeral compute mean you can't hold local state.",
-        scores: { crud: 1, analytics: 2, iot: 2, ecom: 1 },
+        scores: { crud: 1, analytics: 2, iot: 2, ecom: 1, ai_search: 3 },
         tags: ["ephemeral_compute"],
       },
       {
@@ -171,7 +171,7 @@ export const QUESTIONS: Question[] = [
         explanation:
           "No per-user state on the server — any instance can serve any request, so scaling is trivial.",
         caveat: "Anything stateful (sessions, sockets) must live in a shared store instead.",
-        scores: { crud: 3, ecom: 3, social: 2, market: 2, analytics: 1 },
+        scores: { crud: 3, ecom: 3, social: 2, market: 2, analytics: 1, ai_search: 1 },
         tags: ["stateless"],
       },
       {
@@ -265,6 +265,16 @@ export const QUESTIONS: Question[] = [
         scores: { analytics: 5, iot: 4, streaming: 2, social: 1 },
         tags: ["derived_store"],
       },
+      {
+        id: "vector",
+        label: "Vector store",
+        explanation:
+          "Stores embeddings and searches by semantic similarity — the backbone of RAG, semantic search, and recommendations.",
+        caveat:
+          "It's a derived index over content that lives elsewhere; relevance depends on the embedding model and tuning.",
+        scores: { ai_search: 5, social: 2, streaming: 2, market: 1, analytics: 1, crud: -1 },
+        tags: ["derived_store"],
+      },
     ],
   },
   {
@@ -285,7 +295,7 @@ export const QUESTIONS: Question[] = [
         label: "Eventual consistency",
         explanation: "Replicas converge over time — fine for feeds, counts, recommendations, telemetry.",
         caveat: "Reads can be stale; dangerous for payments or inventory.",
-        scores: { social: 3, streaming: 3, iot: 3, analytics: 2, ecom: -2 },
+        scores: { social: 3, streaming: 3, iot: 3, analytics: 2, ecom: -2, ai_search: 2 },
         tags: ["eventual_consistency"],
       },
       {
@@ -329,7 +339,7 @@ export const QUESTIONS: Question[] = [
         label: "Background job queue",
         explanation: "Defer slow work (emails, receipts, exports) to workers behind a queue.",
         caveat: "You must handle retries, failures, and a dead-letter path.",
-        scores: { ecom: 3, crud: 1, social: 1 },
+        scores: { ecom: 3, crud: 1, social: 1, ai_search: 2 },
       },
       {
         id: "pub_sub",
@@ -387,7 +397,7 @@ export const QUESTIONS: Question[] = [
         label: "Redis / in-memory cache",
         explanation: "A shared hot cache for expensive reads, sessions, counters, and pub/sub.",
         caveat: "Stale entries and cache-invalidation bugs are easy to introduce.",
-        scores: { ecom: 3, social: 3, chat: 3, market: 3, streaming: 2 },
+        scores: { ecom: 3, social: 3, chat: 3, market: 3, streaming: 2, ai_search: 2 },
         tags: ["shared_cache", "fanout"],
       },
       {
@@ -431,7 +441,7 @@ export const QUESTIONS: Question[] = [
         label: "Object storage (S3-style)",
         explanation: "Durable, cheap blob storage for uploads, exports, and user content.",
         caveat: "You manage access control, lifecycle, and signed URLs.",
-        scores: { social: 3, ecom: 2, streaming: 2, market: 2 },
+        scores: { social: 3, ecom: 2, streaming: 2, market: 2, ai_search: 1 },
       },
       {
         id: "cdn_media",
@@ -483,7 +493,7 @@ export const QUESTIONS: Question[] = [
         label: "Serverless platform",
         explanation: "The platform scales instances per request — no servers to manage.",
         caveat: "Cold starts, execution limits, and ephemeral compute.",
-        scores: { crud: 1, analytics: 2, iot: 2, ecom: 1 },
+        scores: { crud: 1, analytics: 2, iot: 2, ecom: 1, ai_search: 2 },
         tags: ["multi_instance", "ephemeral_compute"],
       },
       {
@@ -520,7 +530,7 @@ export const QUESTIONS: Question[] = [
         label: "Logs + metrics + distributed tracing",
         explanation: "Trace a request across services — essential for microservices and realtime.",
         caveat: "Instrumentation and trace storage cost effort and money.",
-        scores: { market: 3, streaming: 3, social: 2, chat: 2, iot: 1 },
+        scores: { market: 3, streaming: 3, social: 2, chat: 2, iot: 1, ai_search: 1 },
       },
       {
         id: "alerts_slo",

@@ -131,6 +131,18 @@ export const CONFLICTS: ConflictRule[] = [
     ],
   },
   {
+    id: "vector_only_source",
+    severity: "low",
+    ifAll: ["vector"],
+    ifNone: ["object_storage", "relational", "document"],
+    message:
+      "A vector store holds embeddings derived from your real content — it's a retrieval index, not the system of record. With no durable store for the source documents, you can't re-embed, audit, or recover the originals if the index is lost.",
+    fixes: [
+      "Keep source documents in object storage (or a relational/document DB)",
+      "Treat the vector index as a rebuildable derived view and add a re-embed job",
+    ],
+  },
+  {
     id: "files_in_db",
     severity: "low",
     ifAll: ["db_blob"],

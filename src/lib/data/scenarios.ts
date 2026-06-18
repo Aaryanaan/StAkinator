@@ -339,6 +339,48 @@ export const BASE_SCENARIOS: DebugScenario[] = [
     cause: "Long-range queries scan raw points across huge ranges.",
     fix: "Query pre-computed rollups for long ranges and index by time + device.",
   },
+
+  // ── AI / Semantic Search & RAG ──────────────────────────────────────────────
+  {
+    id: "ai_hallucinated_answer",
+    archetype: "ai_search",
+    title: "The assistant confidently answers with wrong or made-up information.",
+    stage: "Retrieval & grounding",
+    cause: "The retrieved context is irrelevant or missing, so the LLM fills the gap by guessing.",
+    fix: "Improve retrieval (top-k, metadata filters, reranking), require citations, and refuse when no good context is found.",
+  },
+  {
+    id: "ai_irrelevant_results",
+    archetype: "ai_search",
+    title: "Semantic search returns results that aren't actually relevant.",
+    stage: "Embeddings & similarity",
+    cause: "Query and documents were embedded with different models, or there's no metadata filtering.",
+    fix: "Use the same embedding model for queries and docs, add metadata filters, and rerank the top candidates.",
+  },
+  {
+    id: "ai_new_docs_missing",
+    archetype: "ai_search",
+    title: "Newly added documents don't show up in answers.",
+    stage: "Embedding / indexing pipeline",
+    cause: "The embedding job that writes vectors is lagging or failing.",
+    fix: "Monitor the indexing queue, add retries + a dead-letter path, and a re-embed/backfill job.",
+  },
+  {
+    id: "ai_slow_and_costly",
+    archetype: "ai_search",
+    title: "Responses are slow and the LLM bill is climbing fast.",
+    stage: "LLM calls & caching",
+    cause: "Every query sends a large context to the LLM with no caching or context trimming.",
+    fix: "Cache frequent answers/embeddings, trim retrieved context to what's needed, and batch embedding calls.",
+  },
+  {
+    id: "ai_vector_search_slow",
+    archetype: "ai_search",
+    title: "Vector search gets slow as the index grows.",
+    stage: "Vector index (ANN) tuning",
+    cause: "Search is brute-force or the approximate index (HNSW/IVF) is untuned for the dataset size.",
+    fix: "Use an approximate-nearest-neighbor index, tune its parameters, and shard/partition by namespace.",
+  },
 ];
 
 // Conditional scenarios reflect the user's ACTUAL choices and outrank base ones.

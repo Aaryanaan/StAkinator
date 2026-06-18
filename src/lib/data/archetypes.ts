@@ -163,6 +163,26 @@ export const ARCHETYPES: Archetype[] = [
       observability: "alerts_slo",
     },
   },
+  {
+    id: "ai_search",
+    name: "AI / Semantic Search & RAG",
+    description:
+      "Apps built around embeddings and LLMs: semantic search, retrieval-augmented generation, and AI assistants over your own data. A vector store powers retrieval; an LLM streams the answer.",
+    examples: ["Perplexity-style answer engine", "A RAG chatbot over company docs", "Notion AI / semantic search"],
+    ideal: {
+      client: "spa",
+      api: "sse",
+      backend: "serverless",
+      state: "stateless",
+      db: "vector",
+      consistency: "eventual",
+      async: "job_queue",
+      cache: "redis_cache",
+      files: "object_storage",
+      deploy: "serverless_deploy",
+      observability: "logs_metrics_tracing",
+    },
+  },
 ];
 
 export const ARCHETYPE_INDEX: Record<string, Archetype> = Object.fromEntries(
