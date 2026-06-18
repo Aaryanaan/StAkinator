@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { QUESTIONS } from "@/lib/data/questions";
 import type { EvalResult } from "@/lib/types";
 import ResultView from "@/components/ResultView";
+import ArchitectureGallery from "@/components/ArchitectureGallery";
 
-type Phase = "intro" | "quiz" | "loading" | "result" | "error";
+type Phase = "intro" | "gallery" | "quiz" | "loading" | "result" | "error";
 
 interface ApiResponse {
   result: EvalResult;
@@ -19,6 +20,7 @@ export default function Wizard() {
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [data, setData] = useState<ApiResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const total = QUESTIONS.length;
   const answeredCount = Object.keys(selections).length;
@@ -29,13 +31,26 @@ export default function Wizard() {
     [answeredCount, total],
   );
 
+  function goStep(i: number) {
+    setStep(Math.max(0, Math.min(total - 1, i)));
+    setHelpOpen(false);
+  }
+
   function choose(optionId: string) {
     const next = { ...selections, [current.id]: optionId };
     setSelections(next);
     // Auto-advance, but never past the last question.
     if (step < total - 1) {
-      setStep(step + 1);
+      goStep(step + 1);
     }
+  }
+
+  function loadPreset(presetSelections: Record<string, string>) {
+    setSelections(presetSelections);
+    setStep(0);
+    setHelpOpen(false);
+    setPhase("quiz");
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function submit(finalSelections: Record<string, string>) {
@@ -64,6 +79,7 @@ export default function Wizard() {
     setSelections({});
     setData(null);
     setErrorMsg("");
+    setHelpOpen(false);
   }
 
   if (phase === "result" && data) {
@@ -74,7 +90,13 @@ export default function Wizard() {
     <main className="mx-auto max-w-5xl px-5 py-10">
       <Header />
 
-      {phase === "intro" && <Intro onStart={() => setPhase("quiz")} />}
+      {phase === "intro" && (
+        <Intro onStart={() => setPhase("quiz")} onBrowse={() => setPhase("gallery")} />
+      )}
+
+      {phase === "gallery" && (
+        <ArchitectureGallery onLoad={loadPreset} onReveal={submit} onBack={() => setPhase("intro")} />
+      )}
 
       {phase === "loading" && (
         <div className="mt-16 flex flex-col items-center gap-4 text-slate-300">
@@ -101,7 +123,26 @@ export default function Wizard() {
             <ProgressBar step={step} total={total} percent={progress} category={current.category} />
 
             <div key={current.id} className="animate-rise mt-6">
-              <h2 className="text-xl font-semibold text-white">{current.prompt}</h2>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-xl font-semibold text-white">{current.prompt}</h2>
+                <button
+                  onClick={() => setHelpOpen((v) => !v)}
+                  aria-label="How this choice affects your architecture"
+                  aria-expanded={helpOpen}
+                  title="How does this choice fit?"
+                  className={[
+                    "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition",
+                    helpOpen
+                      ? "border-brand bg-brand/15 text-brand"
+                      : "border-edge text-slate-400 hover:border-brand hover:text-brand",
+                  ].join(" ")}
+                >
+                  ?
+                </button>
+              </div>
+
+              {helpOpen && <HelpCallout help={current.help} />}
+
               <div className="mt-5 grid gap-3">
                 {current.options.map((opt) => {
                   const active = selections[current.id] === opt.id;
@@ -129,7 +170,7 @@ export default function Wizard() {
 
             <div className="mt-6 flex items-center justify-between">
               <button
-                onClick={() => setStep(Math.max(0, step - 1))}
+                onClick={() => goStep(step - 1)}
                 disabled={step === 0}
                 className="rounded-lg border border-edge px-4 py-2 text-sm text-slate-300 enabled:hover:border-brand disabled:opacity-30"
               >
@@ -138,7 +179,7 @@ export default function Wizard() {
 
               {step < total - 1 ? (
                 <button
-                  onClick={() => setStep(step + 1)}
+                  onClick={() => goStep(step + 1)}
                   disabled={!selections[current.id]}
                   className="rounded-lg border border-edge px-4 py-2 text-sm text-slate-300 enabled:hover:border-brand disabled:opacity-30"
                 >
@@ -162,7 +203,7 @@ export default function Wizard() {
             )}
           </section>
 
-          <SummaryPanel selections={selections} step={step} onJump={(i) => setStep(i)} />
+          <SummaryPanel selections={selections} step={step} onJump={(i) => goStep(i)} />
         </div>
       )}
     </main>
@@ -183,12 +224,14 @@ function Header() {
   );
 }
 
-function Intro({ onStart }: { onStart: () => void }) {
+function Intro({ onStart, onBrowse }: { onStart: () => void; onBrowse: () => void }) {
   return (
     <section className="mt-8 animate-rise rounded-2xl border border-edge bg-panel/60 p-7">
       <p className="text-slate-300">
         Answer {QUESTIONS.length} questions about how you&apos;d build a client→backend system —
-        databases, consistency, server state, caching, deployment, and more. Then this tool:
+        databases, consistency, server state, caching, deployment, and more. Each choice is a puzzle
+        piece; tap the <span className="font-bold text-brand">?</span> on any question to see how it
+        fits with the others. Then this tool:
       </p>
       <ul className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
         {[
@@ -209,13 +252,40 @@ function Intro({ onStart }: { onStart: () => void }) {
         The inference is done by a rules + scoring engine (not a black-box LLM), so the verdicts are
         consistent and explainable. An optional API key only polishes the written summary.
       </p>
-      <button
-        onClick={onStart}
-        className="mt-6 rounded-lg border border-brand bg-brand/15 px-6 py-3 font-semibold text-brand transition hover:bg-brand/25"
-      >
-        Start →
-      </button>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button
+          onClick={onStart}
+          className="rounded-lg border border-brand bg-brand/15 px-6 py-3 font-semibold text-brand transition hover:bg-brand/25"
+        >
+          Start from scratch →
+        </button>
+        <button
+          onClick={onBrowse}
+          className="rounded-lg border border-edge px-6 py-3 font-semibold text-slate-200 transition hover:border-accent hover:text-accent"
+        >
+          Explore common architectures
+        </button>
+      </div>
+      <p className="mt-2 text-xs text-slate-500">
+        New to this? Start with a common architecture (Slack, Shopify, Netflix…) to see a known-good
+        setup, then load it and experiment.
+      </p>
     </section>
+  );
+}
+
+function HelpCallout({ help }: { help: string }) {
+  const [main, works] = help.split(/Works with:\s*/);
+  return (
+    <div className="animate-rise mt-3 rounded-xl border border-brand/30 bg-brand/5 p-4 text-sm text-slate-300">
+      <p>{main.trim()}</p>
+      {works && (
+        <p className="mt-2 text-xs text-brand">
+          <span className="font-semibold">Puzzle-fits with: </span>
+          {works.trim().replace(/\.$/, "")}
+        </p>
+      )}
+    </div>
   );
 }
 

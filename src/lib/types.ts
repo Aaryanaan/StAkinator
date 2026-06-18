@@ -32,6 +32,9 @@ export interface Question {
   id: string;
   category: string;
   prompt: string;
+  /** Beginner-facing guidance: what this choice affects + which other
+   *  questions it locks together (the "puzzle-piece" interactions). */
+  help: string;
   options: Option[];
 }
 

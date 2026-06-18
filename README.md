@@ -15,6 +15,15 @@ It does five things with your choices:
 5. **Generates 5 realistic production failures** to debug, and shows **how to transform** the
    architecture into a different kind of app.
 
+Two ways to learn:
+
+- **Build from scratch** — answer the 11 questions one at a time. Each has a **`?` help button**
+  that explains what the choice affects and which other questions it "puzzle-fits" with, so you
+  learn how the pieces constrain each other.
+- **Explore common architectures** — open a worked example (Slack, Shopify, Netflix, …), inspect
+  why each of its 11 pieces is there, then **load it into the builder** and tinker to watch the
+  inferred type shift.
+
 ## The important design decision
 
 **The rules decide; the LLM only explains.** Inference, conflict detection, examples,

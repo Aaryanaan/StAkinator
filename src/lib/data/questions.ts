@@ -9,7 +9,8 @@ export const QUESTIONS: Question[] = [
   {
     id: "client",
     category: "Client",
-    prompt: "Which apps will people actually use to reach your backend?",
+    prompt: "What kind of client will people use to reach your backend?",
+    help: "This is the app a user actually opens, and it ripples through everything else. A mobile app pushes you toward token logins, working offline, and an API that stays stable for old versions still out in the wild; a plain website can lean more on the server. Works with: API style, Server state.",
     options: [
       {
         id: "ssr",
@@ -57,7 +58,8 @@ export const QUESTIONS: Question[] = [
   {
     id: "api",
     category: "API style",
-    prompt: "How do those clients talk to the backend?",
+    prompt: "How does that client talk to the backend?",
+    help: "How this client and the backend exchange data. Request/response styles (REST, GraphQL, gRPC) suit normal actions; live styles (WebSockets, SSE) let the server push updates the instant they happen. Choosing a live style usually pulls in real-time connection servers later. Works with: Server state, Async processing.",
     options: [
       {
         id: "rest",
@@ -116,6 +118,7 @@ export const QUESTIONS: Question[] = [
     id: "backend",
     category: "Backend shape",
     prompt: "How is the backend code organized?",
+    help: "How the code is split up. One app (a monolith) is simplest to build; many small services scale independently but add network calls, more deploys, and data spread across services. The golden rule: start simple, split only when a real bottleneck appears. Works with: Async processing, Deployment, Observability.",
     options: [
       {
         id: "monolith",
@@ -173,6 +176,7 @@ export const QUESTIONS: Question[] = [
     id: "state",
     category: "Server state",
     prompt: "Where does per-user state (like your login session) live?",
+    help: "Where a user's session or live connection is remembered — and the classic scaling trap. If servers keep this in their own memory AND you run more than one, users get randomly logged out. Stateless servers plus a shared store (or sticky routing) avoid that. Works with: Deployment, API style.",
     options: [
       {
         id: "stateless",
@@ -227,6 +231,7 @@ export const QUESTIONS: Question[] = [
     id: "db",
     category: "Primary database",
     prompt: "Where does your main data live?",
+    help: "Where your core data lives — the most defining choice here. SQL gives safe, all-or-nothing updates (money, orders); other types trade some safety for scale or flexibility; search and vector stores are usually fast-read copies, not your source of truth. Many real apps use more than one. Works with: Consistency, Caching, File storage.",
     options: [
       {
         id: "relational",
@@ -293,6 +298,7 @@ export const QUESTIONS: Question[] = [
     id: "consistency",
     category: "Consistency model",
     prompt: "How up-to-date must the data look when you read it?",
+    help: "How fresh a read has to be. Strong means every read sees the latest write (needed for payments, but slower and hard worldwide); eventual is faster but a read can be a moment behind (fine for feeds and counts). This should match your database and whether you go multi-region. Works with: Database, Deployment.",
     options: [
       {
         id: "strong_acid",
@@ -342,6 +348,7 @@ export const QUESTIONS: Question[] = [
     id: "async",
     category: "Async processing",
     prompt: "How does slow work get done without making users wait?",
+    help: "How work that shouldn't make the user wait gets done — emails, exports, search indexing, notifications. Skip it and slow tasks block users and time out. Queues defer one-off jobs; pub/sub and streaming broadcast events to many parts of the system at once. Works with: Backend shape, API style.",
     options: [
       {
         id: "async_none",
@@ -391,6 +398,7 @@ export const QUESTIONS: Question[] = [
     id: "cache",
     category: "Caching",
     prompt: "Do you keep fast copies of data to speed up reads?",
+    help: "Fast copies of data so you don't refetch or recompute constantly — big speed and cost wins. The catch is staleness: forget to refresh the cache when data changes and users see old values. More caching means more 'why is this stale?' bugs to design around. Works with: Consistency, Deployment.",
     options: [
       {
         id: "cache_none",
@@ -446,6 +454,7 @@ export const QUESTIONS: Question[] = [
     id: "files",
     category: "File / media storage",
     prompt: "Where do uploads and media (images, video, files) go?",
+    help: "Where uploads and media live. Tiny attachments can sit in the database, but real images and video belong in object storage (cheap, durable), usually behind a CDN so they load fast worldwide. Big files in the database bloat it and slow backups. Works with: Caching, Client.",
     options: [
       {
         id: "files_none",
@@ -484,6 +493,7 @@ export const QUESTIONS: Question[] = [
     id: "deploy",
     category: "Deployment / scaling",
     prompt: "How and where does the app run in production?",
+    help: "How and where it runs. One server is simplest but a single point of failure; multiple servers, containers, or Kubernetes scale and survive failures — but only if servers are stateless or share state. Multi-region is fast and resilient worldwide, at the cost of hard data-replication problems. Works with: Server state, Consistency.",
     options: [
       {
         id: "single_server",
@@ -541,6 +551,7 @@ export const QUESTIONS: Question[] = [
     id: "observability",
     category: "Observability",
     prompt: "How will you see what's happening inside the system?",
+    help: "How you'll see what's happening when something breaks. Logs are a start; metrics show trends; tracing follows one request across services to find the slow step; alerts and SLOs page you fast; audit logs track sensitive actions. The more distributed your system, the more of this you need. Works with: Backend shape, Deployment.",
     options: [
       {
         id: "basic_logs",
