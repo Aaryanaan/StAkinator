@@ -6,6 +6,7 @@ import type {
   EvalResult,
   InfluentialChoice,
   RankedArchetype,
+  Similarity,
   Transformation,
   WhyChoice,
 } from "@/lib/types";
@@ -126,6 +127,49 @@ function whyChoicesFor(selections: Record<string, string>): WhyChoice[] {
     });
   }
   return items;
+}
+
+// ── Architectural neighbors ───────────────────────────────────────────────────
+
+// A rival is a "neighbor" if it still holds a meaningful share of the signal.
+const NEIGHBOR_THRESHOLD = 12;
+
+function similarityFor(
+  topId: ArchetypeId,
+  ranked: RankedArchetype[],
+  selections: Record<string, string>,
+): Similarity | null {
+  const related = ranked
+    .filter((r) => r.id !== topId && r.percent >= NEIGHBOR_THRESHOLD)
+    .slice(0, 2);
+  if (related.length === 0) return null;
+
+  const nearest = related[0].id;
+  const opts = Object.values(selections)
+    .map((id) => OPTION_INDEX[id]?.option)
+    .filter((o): o is NonNullable<typeof o> => Boolean(o));
+
+  const scoreFor = (o: (typeof opts)[number], id: ArchetypeId) => o.scores[id] ?? 0;
+
+  // Shared = genuinely points at both (neighbor gets a real signal, not just +1).
+  const shared = opts
+    .filter((o) => scoreFor(o, topId) > 0 && scoreFor(o, nearest) >= 2)
+    .sort((a, b) => scoreFor(b, topId) + scoreFor(b, nearest) - (scoreFor(a, topId) + scoreFor(a, nearest)))
+    .slice(0, 4)
+    .map((o) => o.label);
+
+  // Distinctive = a real signal for the top type that the neighbor barely shares.
+  const distinctive = opts
+    .filter((o) => scoreFor(o, topId) >= 2 && scoreFor(o, nearest) <= 1)
+    .sort((a, b) => scoreFor(b, topId) - scoreFor(a, topId))
+    .slice(0, 3)
+    .map((o) => o.label);
+
+  return {
+    related: related.map((r) => ({ id: r.id, name: r.name, percent: r.percent })),
+    shared,
+    distinctive,
+  };
 }
 
 // ── Conflicts ─────────────────────────────────────────────────────────────────
@@ -264,5 +308,6 @@ export function evaluate(rawSelections: unknown): EvalResult {
     conflicts,
     scenarios: selectScenarios(top.id, selections),
     transformations: transformationsFrom(top.id, selections),
+    similarity: similarityFor(top.id, ranked, selections),
   };
 }

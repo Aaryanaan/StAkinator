@@ -51,31 +51,7 @@ export default function ResultView({
         </div>
         <h1 className="mt-2 text-3xl font-bold text-white">{result.top.name}</h1>
 
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Match strength</span>
-            <span className="text-slate-200">{result.top.percent}%</span>
-          </div>
-          <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-edge">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-brand to-accent"
-              style={{ width: `${Math.max(4, result.top.percent)}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-slate-500">
-            How strongly your choices point here versus the other types — not a percent chance.
-            {result.ranked[1] && result.ranked[1].percent >= 15 ? (
-              <>
-                {" "}
-                Its nearest cousin is{" "}
-                <span className="text-slate-300">{result.ranked[1].name}</span> ({result.ranked[1].percent}%),
-                because those architectures share a lot of infrastructure.
-              </>
-            ) : (
-              <> Your choices are quite distinctive to this type.</>
-            )}
-          </p>
-        </div>
+        <NeighborsNote result={result} />
 
         <p className="mt-5 whitespace-pre-line text-slate-300">{narrative}</p>
         <p className="mt-3 text-[11px] text-slate-600">
@@ -84,7 +60,7 @@ export default function ResultView({
       </section>
 
       {/* Ranked matches */}
-      <Section title="How the matches ranked">
+      <Section title="How strongly your choices match each type">
         <ul className="space-y-2">
           {result.ranked.slice(0, 5).map((r, i) => (
             <li key={r.id} className="flex items-center gap-3">
@@ -283,5 +259,54 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="mb-3 text-lg font-bold text-white">{title}</h2>
       {children}
     </section>
+  );
+}
+
+/** Reframes the score spread as an affirmative "this resembles X & Y" note,
+ *  rather than a lone percentage that reads like uncertainty. */
+function NeighborsNote({ result }: { result: EvalResult }) {
+  const sim = result.similarity;
+  const list = (items: string[]) =>
+    items.length <= 1
+      ? items[0] ?? ""
+      : items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
+
+  if (!sim) {
+    return (
+      <div className="mt-4 rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm text-slate-300">
+        <span className="font-semibold text-accent">Distinctive shape. </span>
+        Your choices are quite specific to a {result.top.name} — no other architecture really looks
+        like this, so the classification is clear-cut.
+      </div>
+    );
+  }
+
+  const names = list(sim.related.map((r) => r.name));
+
+  return (
+    <div className="mt-4 rounded-xl border border-brand/30 bg-brand/5 p-4 text-sm text-slate-300">
+      <span className="font-semibold text-brand">Architectural neighbors. </span>
+      A {result.top.name} is closely related to {names} — these are sibling architectures that share
+      a lot of the same building blocks, so a single setup can resemble several at once.
+      {sim.shared.length > 0 && (
+        <>
+          {" "}
+          Yours overlaps with {sim.related[0].name} on{" "}
+          <span className="text-slate-200">{list(sim.shared)}</span>.
+        </>
+      )}
+      {sim.distinctive.length > 0 && (
+        <>
+          {" "}
+          It still lands on <span className="text-white">{result.top.name}</span> because of{" "}
+          <span className="text-accent">{list(sim.distinctive)}</span>, which point here specifically.
+        </>
+      )}
+      <span className="mt-2 block text-xs text-slate-500">
+        Want to see exactly what separates them? The “How strongly your choices match each type” bars
+        below show the full spread, and the transformations near the end show what to change to become a{" "}
+        {sim.related[0].name}.
+      </span>
+    </div>
   );
 }

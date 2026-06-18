@@ -5,10 +5,16 @@ import type { EvalResult } from "@/lib/types";
 export function templateNarrative(result: EvalResult): string {
   const lines: string[] = [];
   const verb = result.coherent ? "looks most like" : "most resembles";
-  lines.push(
-    `Based on your choices, this architecture ${verb} a **${result.top.name}** (${result.top.percent}% match).`,
-  );
+  lines.push(`Based on your choices, this architecture ${verb} a **${result.top.name}**.`);
   lines.push(result.top.description);
+
+  if (result.similarity) {
+    const names = result.similarity.related.map((r) => r.name).join(" and ");
+    lines.push(
+      `It's a close relative of ${names} — sibling architectures that share many of the same building blocks — so the same setup naturally resembles several at once.`,
+    );
+  }
+
   lines.push(result.coherenceNote);
 
   if (result.influential.length) {

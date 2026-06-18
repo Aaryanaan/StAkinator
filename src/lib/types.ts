@@ -125,6 +125,15 @@ export interface Transformation {
   examples: string[];
 }
 
+/** Affirmative "this resembles X & Y" note — explains overlap, not doubt. */
+export interface Similarity {
+  related: { id: ArchetypeId; name: string; percent: number }[];
+  /** Choices that point at BOTH the top type and its nearest neighbor. */
+  shared: string[];
+  /** Choices that tip it toward the top type over that nearest neighbor. */
+  distinctive: string[];
+}
+
 export interface EvalResult {
   selections: Record<string, string>;
   ranked: RankedArchetype[];
@@ -142,4 +151,5 @@ export interface EvalResult {
   conflicts: ConflictHit[];
   scenarios: DebugScenario[];
   transformations: Transformation[];
+  similarity: Similarity | null;
 }
